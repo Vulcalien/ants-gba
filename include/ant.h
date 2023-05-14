@@ -13,45 +13,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#ifndef VULC_ANTS_ANT
+#define VULC_ANTS_ANT
+
 #include "main.h"
 
-#include "screen.h"
-#include "interrupt.h"
-#include "input.h"
-#include "performance.h"
-#include "scene.h"
+struct Ant {
+    i16 x, y;
 
-static inline void tick(void) {
-    input_tick();
-    scene->tick();
+    u8 team;
 
-    performance_tick();
-}
+    struct {
+        i16 old_x1, old_y1;
+        i16 old_x2, old_y2;
+    } draw;
+};
 
-static inline void draw(void) {
-    scene->draw();
+void ant_init(struct Ant *ant, i32 x, i32 y, u8 team);
 
-    performance_draw();
-}
+void ant_tick(struct Ant *ant);
+void ant_draw(struct Ant *ant);
+void ant_undraw(struct Ant *ant);
 
-static inline void undraw(void) {
-    scene->undraw();
-}
-
-int AgbMain(void) {
-    screen_init();
-    scene_set(&scene_start, 0);
-
-    interrupt_enable();
-
-    while(true) {
-        tick();
-        draw();
-
-        vsync();
-        screen_switch_frame();
-
-        undraw();
-    }
-    return 0;
-}
+#endif // VULC_ANTS_ANT

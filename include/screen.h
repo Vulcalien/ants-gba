@@ -39,6 +39,9 @@
 
 extern void screen_init(void);
 
+extern void screen_switch_frame(void);
+extern void screen_set_pixel(u32 x, u32 y, u8 color);
+
 extern void vsync(void);
 
 #endif // VULC_TEMPLATE_SCREEN

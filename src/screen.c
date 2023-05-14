@@ -36,8 +36,19 @@
 #define BG_PALETTE  ((vu16 *) 0x05000000)
 #define SPR_PALETTE ((vu16 *) 0x05000200)
 
+#define FRAME_0 ((vu16 *) 0x06000000)
+#define FRAME_1 ((vu16 *) 0x0600a000)
+
+static u32 frame = 0;
+
 void screen_init(void) {
-    // TODO ...
+    BG_PALETTE[0] = 0x0000;
+    BG_PALETTE[1] = 0x7fff;
+
+    DISPLAY_CONTROL = 4 << 0  | // Video Mode 4
+                      0 << 4  | // Select Frame 0
+                      1 << 10 | // Enable BG 2
+                      1 << 12;  // Enable OBJs
 
     // hide all sprites
     for(u32 i = 0; i < 128; i++)
@@ -45,6 +56,31 @@ void screen_init(void) {
 
     // enable V-Blank IRQ
     DISPLAY_STATUS = (1 << 3);
+}
+
+void screen_switch_frame(void) {
+    frame ^= 1;
+}
+
+IWRAM_SECTION
+void screen_set_pixel(u32 x, u32 y, u8 color) {
+    if(x + y * SCREEN_W > SCREEN_W * SCREEN_H)
+        return;
+
+    vu16 *raster;
+    if(frame == 0)
+        raster = FRAME_1;
+    else
+        raster = FRAME_0;
+
+    vu16 *addr = &raster[(x + y * SCREEN_W) / 2];
+    if(x & 1) {
+        u16 lo = *addr & 0x00ff;
+        *addr = (color << 8) | lo;
+    } else {
+        u16 hi = *addr & 0xff00;
+        *addr = hi | color;
+    }
 }
 
 IWRAM_SECTION

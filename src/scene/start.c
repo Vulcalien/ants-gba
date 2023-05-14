@@ -21,14 +21,21 @@ static void start_init(u32 flags) {
 
 static void start_tick(void) {
     // TODO ...
+    scene_set(&scene_game, 1);
 }
 
+#include "screen.h"
 static void start_draw(void) {
+    // TODO ...
+}
+
+static void start_undraw(void) {
     // TODO ...
 }
 
 const struct Scene scene_start = {
     .init = start_init,
     .tick = start_tick,
-    .draw = start_draw
+    .draw = start_draw,
+    .undraw = start_undraw
 };

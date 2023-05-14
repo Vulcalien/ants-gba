@@ -22,11 +22,13 @@ struct Scene {
     void (*init)(u32 flags);
     void (*tick)(void);
     void (*draw)(void);
+    void (*undraw)(void);
 };
 
 extern const struct Scene *scene;
 
 extern const struct Scene scene_start;
+extern const struct Scene scene_game;
 
 inline void scene_set(const struct Scene *new_scene, u32 flags) {
     scene = new_scene;

@@ -13,45 +13,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "main.h"
-
-#include "screen.h"
-#include "interrupt.h"
-#include "input.h"
-#include "performance.h"
 #include "scene.h"
 
-static inline void tick(void) {
-    input_tick();
-    scene->tick();
+#include "level.h"
 
-    performance_tick();
+static void game_init(u32 flags) {
+    level_init();
 }
 
-static inline void draw(void) {
-    scene->draw();
-
-    performance_draw();
+static void game_tick(void) {
+    level_tick();
 }
 
-static inline void undraw(void) {
-    scene->undraw();
+static void game_draw(void) {
+    level_draw();
 }
 
-int AgbMain(void) {
-    screen_init();
-    scene_set(&scene_start, 0);
-
-    interrupt_enable();
-
-    while(true) {
-        tick();
-        draw();
-
-        vsync();
-        screen_switch_frame();
-
-        undraw();
-    }
-    return 0;
+static void game_undraw(void) {
+    level_undraw();
 }
+
+const struct Scene scene_game = {
+    .init = game_init,
+    .tick = game_tick,
+    .draw = game_draw,
+    .undraw = game_undraw
+};
