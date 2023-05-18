@@ -19,14 +19,17 @@ SBSS_SECTION
 struct Level level;
 
 void level_init(void) {
-    for(u32 i = 0; i < LEVEL_SIZE; i++)
-        level.tiles[i] = -1;
+    for(u32 i = 0; i < LEVEL_SIZE; i++) {
+        level.ant_ids[i] = -1;
+        level.tiles[i] = TILE_BLANK;
+    }
 
     // DEBUG
     for(u32 i = 0; i < 20; i++) {
         struct Ant *ant = &level.ants[i];
 
-        ant_init(ant, rand() % LEVEL_W, rand() % LEVEL_H, 1);
+        ant_init(ant, rand() % LEVEL_W, rand() % LEVEL_H, 1, 2);
+        level_set_ant_id(ant->x, ant->y, i);
     }
 }
 
@@ -47,15 +50,5 @@ void level_draw(void) {
 
         if(ant->team > 0)
             ant_draw(ant);
-    }
-}
-
-IWRAM_SECTION
-void level_undraw(void) {
-    for(u32 i = 0; i < LEVEL_ANTS_COUNT; i++) {
-        struct Ant *ant = &level.ants[i];
-
-        if(ant->team > 0)
-            ant_undraw(ant);
     }
 }

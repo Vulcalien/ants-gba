@@ -34,10 +34,6 @@ static inline void draw(void) {
     performance_draw();
 }
 
-static inline void undraw(void) {
-    scene->undraw();
-}
-
 int AgbMain(void) {
     screen_init();
     scene_set(&scene_start, 0);
@@ -46,12 +42,15 @@ int AgbMain(void) {
 
     while(true) {
         tick();
-        draw();
+
+        // DEBUG: write a proper TPS cap
+        vsync();
+        vsync();
+        vsync();
+        vsync();
 
         vsync();
-        screen_switch_frame();
-
-        undraw();
+        draw();
     }
     return 0;
 }

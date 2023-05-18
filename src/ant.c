@@ -18,47 +18,50 @@
 #include "level.h"
 #include "screen.h"
 
-void ant_init(struct Ant *ant, i32 x, i32 y, u8 team) {
+void ant_init(struct Ant *ant, i32 x, i32 y, u8 team, u8 type) {
     ant->x = x;
     ant->y = y;
 
     ant->team = team;
+    ant->type = type;
+
+    for(u32 i = 0; i < sizeof(ant->data); i++)
+        ant->data[i] = 0;
 }
 
 IWRAM_SECTION
 void ant_tick(struct Ant *ant) {
-    i32 new_x = ant->x + (rand() % 3) - 1;
-    i32 new_y = ant->y + (rand() % 3) - 1;
+    ant->old_x = ant->x;
+    ant->old_y = ant->y;
 
-    // check if the ant is going out of bounds
-    if(new_x < 0 || new_y < 0 || new_x >= LEVEL_W || new_y >= LEVEL_H)
-        return;
+    const struct ant_Type *type = ant_get_type(ant);
+    type->tick(ant);
 
-    i16 id = level_get_ant_id(ant->x, ant->y);
-
-    // check if an ant is where we want to go
-    if(id >= 0)
+    if(ant->x == ant->old_x && ant->y == ant->old_y)
         return;
 
     // update position
-    level_set_ant_id(ant->x, ant->y, -1);
-    ant->x = new_x;
-    ant->y = new_y;
+    i16 id = level_get_ant_id(ant->old_x, ant->old_y);
+    level_set_ant_id(ant->old_x, ant->old_y, -1);
+    while(id < 0);
     level_set_ant_id(ant->x, ant->y, id);
 }
 
 IWRAM_SECTION
 void ant_draw(struct Ant *ant) {
-    screen_set_pixel(ant->x, ant->y, ant->team);
+    // undraw
+    screen_set_pixel(ant->old_x, ant->old_y, 0);
 
-    ant->draw.old_x2 = ant->draw.old_x1;
-    ant->draw.old_y2 = ant->draw.old_y1;
-
-    ant->draw.old_x1 = ant->x;
-    ant->draw.old_y1 = ant->y;
+    screen_set_pixel(
+        ant->x, ant->y,
+        (ant->team - 1) * 16 + ant->type + 1
+    );
 }
 
-IWRAM_SECTION
-void ant_undraw(struct Ant *ant) {
-    screen_set_pixel(ant->draw.old_x2, ant->draw.old_y2, 0);
-}
+const struct ant_Type *ant_types[ANT_TYPES] = {
+    &ant_queen,
+    &ant_soldier,
+    &ant_explorer,
+    &ant_builder,
+    &ant_gatherer
+};

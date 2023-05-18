@@ -37,13 +37,14 @@
 #define SPR_PALETTE ((vu16 *) 0x05000200)
 
 #define FRAME_0 ((vu16 *) 0x06000000)
-#define FRAME_1 ((vu16 *) 0x0600a000)
-
-static u32 frame = 0;
 
 void screen_init(void) {
     BG_PALETTE[0] = 0x0000;
     BG_PALETTE[1] = 0x7fff;
+    BG_PALETTE[2] = 0x7fff;
+    BG_PALETTE[3] = 0x7fff;
+    BG_PALETTE[4] = 0x7fff;
+    BG_PALETTE[5] = 0x7fff;
 
     DISPLAY_CONTROL = 4 << 0  | // Video Mode 4
                       0 << 4  | // Select Frame 0
@@ -58,22 +59,12 @@ void screen_init(void) {
     DISPLAY_STATUS = (1 << 3);
 }
 
-void screen_switch_frame(void) {
-    frame ^= 1;
-}
-
 IWRAM_SECTION
 void screen_set_pixel(u32 x, u32 y, u8 color) {
     if(x + y * SCREEN_W > SCREEN_W * SCREEN_H)
         return;
 
-    vu16 *raster;
-    if(frame == 0)
-        raster = FRAME_1;
-    else
-        raster = FRAME_0;
-
-    vu16 *addr = &raster[(x + y * SCREEN_W) / 2];
+    vu16 *addr = &FRAME_0[(x + y * SCREEN_W) / 2];
     if(x & 1) {
         u16 lo = *addr & 0x00ff;
         *addr = (color << 8) | lo;

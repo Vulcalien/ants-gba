@@ -13,27 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef VULC_TEMPLATE_SCENE
-#define VULC_TEMPLATE_SCENE
+#include "ant.h"
 
-#include "main.h"
+void gatherer_tick(struct Ant *ant) {
 
-struct Scene {
-    void (*init)(u32 flags);
-    void (*tick)(void);
-    void (*draw)(void);
-};
-
-extern const struct Scene *scene;
-
-extern const struct Scene scene_start;
-extern const struct Scene scene_game;
-
-inline void scene_set(const struct Scene *new_scene, u32 flags) {
-    scene = new_scene;
-
-    if(flags && scene->init)
-        scene->init(flags);
 }
 
-#endif // VULC_TEMPLATE_SCENE
+const struct ant_Type ant_gatherer = {
+    .tick = gatherer_tick
+};

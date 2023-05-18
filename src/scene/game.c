@@ -29,13 +29,8 @@ static void game_draw(void) {
     level_draw();
 }
 
-static void game_undraw(void) {
-    level_undraw();
-}
-
 const struct Scene scene_game = {
     .init = game_init,
     .tick = game_tick,
-    .draw = game_draw,
-    .undraw = game_undraw
+    .draw = game_draw
 };

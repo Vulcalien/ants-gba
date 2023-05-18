@@ -30,8 +30,16 @@
 struct Level {
     struct Ant ants[LEVEL_ANTS_COUNT];
 
-    i16 tiles[LEVEL_W * LEVEL_H];
+    i16 ant_ids[LEVEL_W * LEVEL_H];
+    u8 tiles[LEVEL_W * LEVEL_H];
 };
+
+#define TILE_BLANK (0)
+#define TILE_FOOD  (1)
+#define TILE_WALL  (2)
+
+#define TILE_PHEROMONE_HOME (16)
+#define TILE_PHEROMONE_FOOD (17)
 
 extern struct Level level;
 
@@ -39,7 +47,7 @@ inline i16 level_get_ant_id(i32 x, i32 y) {
     if(x < 0 || y < 0 || x >= LEVEL_W || y >= LEVEL_H)
         return -1;
 
-    i16 id = level.tiles[x + y * LEVEL_W];
+    i16 id = level.ant_ids[x + y * LEVEL_W];
     if(id < 0 || id >= LEVEL_ANTS_COUNT)
         return -1;
 
@@ -50,7 +58,7 @@ inline void level_set_ant_id(i32 x, i32 y, i16 id) {
     if(x < 0 || y < 0 || x >= LEVEL_W || y >= LEVEL_H)
         return;
 
-    level.tiles[x + y * LEVEL_W] = id;
+    level.ant_ids[x + y * LEVEL_W] = id;
 }
 
 inline struct Ant *level_get_ant(i32 x, i32 y) {
@@ -60,10 +68,25 @@ inline struct Ant *level_get_ant(i32 x, i32 y) {
     return NULL;
 }
 
-void level_init(void);
+inline u8 level_get_tile(i32 x, i32 y) {
+    if(x < 0 || y < 0 || x >= LEVEL_W || y >= LEVEL_H)
+        return TILE_WALL;
+    return level.tiles[x + y * LEVEL_W];
+}
 
+inline bool level_can_walk(i32 x, i32 y) {
+    if(level_get_ant_id(x, y) >= 0)
+        return false;
+
+    u8 tile = level_get_tile(x, y);
+    if(tile != TILE_BLANK && tile < 16)
+        return false;
+
+    return true;
+}
+
+void level_init(void);
 void level_tick(void);
 void level_draw(void);
-void level_undraw(void);
 
 #endif // VULC_ANTS_LEVEL

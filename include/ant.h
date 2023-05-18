@@ -20,19 +20,33 @@
 
 struct Ant {
     i16 x, y;
+    i16 old_x, old_y;
 
     u8 team;
+    u8 type;
 
-    struct {
-        i16 old_x1, old_y1;
-        i16 old_x2, old_y2;
-    } draw;
+    u8 data[4];
 };
 
-void ant_init(struct Ant *ant, i32 x, i32 y, u8 team);
-
+void ant_init(struct Ant *ant, i32 x, i32 y, u8 team, u8 type);
 void ant_tick(struct Ant *ant);
 void ant_draw(struct Ant *ant);
-void ant_undraw(struct Ant *ant);
+
+struct ant_Type {
+    void (*tick)(struct Ant *ant);
+};
+
+#define ANT_TYPES (5)
+extern const struct ant_Type *ant_types[ANT_TYPES];
+
+extern const struct ant_Type ant_queen;
+extern const struct ant_Type ant_soldier;
+extern const struct ant_Type ant_explorer;
+extern const struct ant_Type ant_builder;
+extern const struct ant_Type ant_gatherer;
+
+inline const struct ant_Type *ant_get_type(struct Ant *ant) {
+    return ant_types[ant->type];
+}
 
 #endif // VULC_ANTS_ANT
